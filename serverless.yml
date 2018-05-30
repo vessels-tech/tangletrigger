@@ -8,6 +8,8 @@ provider:
     IOTA_URL: ${env:IOTA_URL}
     IOTA_ADDRESS: ${env:IOTA_ADDRESS}
     S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+    SNS_TOPIC_NAME: ${env:SNS_TOPIC_NAME}
+    SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
 
 functions:
   checkAddress:
@@ -25,10 +27,14 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${env:S3_BUCKET_NAME}
-
+    
     TxNotification:
-      Type: "AWS::SNS::TOPIC"
+      Type: AWS::SNS::Topic
       Properties:
         TopicName: ${env:SNS_TOPIC_NAME}
+        Subscription:
+        - Endpoint: ${env:SNS_EMAIL}
+          Protocol: email
+
 
 

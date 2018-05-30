@@ -3,11 +3,14 @@
 const IOTA = require('iota.lib.js');
 const iota = new IOTA({provider: process.env.IOTA_URL});
 
-var AWS = require('aws-sdk');
-var s3 = new AWS.S3();
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+const sns = new AWS.SNS({
+  region: 'ap-southeast-2'
+});
 
 module.exports.checkAddress = (event, context, callback) => {
-  console.log("CHECKING ADDRESS:", process.env.IOTA_ADDRESS);
+  let newTx = null;
 
   return Promise.all([
     getExistingHashes(),
@@ -15,11 +18,15 @@ module.exports.checkAddress = (event, context, callback) => {
   ])
   .then(([existingTx, allTx]) => {
     //Remove the existing from all
-    const newTx = Object.keys(allTx).filter(hash => existingTx[hash] !== true);
-    console.log("new tx are:", newTx);
-    //TODO: Trigger a new email/notification
+    newTx = Object.keys(allTx).filter(hash => existingTx[hash] !== true);
 
     return saveNewHashes(newTx);
+  })
+  .then(() => {
+    if (newTx.length > 0) {
+      const message = `You have ${newTx.length} new transactions on the tangle!`;
+      return publishSNSMessage(message);
+    }
   })
   .catch(err => {
     console.log(err);
@@ -81,4 +88,16 @@ const findTransactionsPromise = () => {
       resolve(foundHashes);
     });
   })
+}
+
+
+const publishSNSMessage = (message) => {
+
+  const params = {
+    Message: message,
+    Subject: 'You have new Transactions on the Tangle!',
+    TopicArn: process.env.SNS_TOPIC_ARN
+  }
+
+  return sns.publish(params).promise();
 }
