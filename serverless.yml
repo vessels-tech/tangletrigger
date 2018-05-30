@@ -16,6 +16,6 @@ functions:
           name: shedule-check-address
           description: check the tangle for a given address
           # rate: rate(30 minutes)
-          rate: rate(1 minutes)
+          rate: rate(1 minute)
           enabled: true
 
