@@ -7,6 +7,7 @@ provider:
   environment:
     IOTA_URL: ${env:IOTA_URL}
     IOTA_ADDRESS: ${env:IOTA_ADDRESS}
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
 
 functions:
   checkAddress:
@@ -15,7 +16,19 @@ functions:
       - schedule:
           name: shedule-check-address
           description: check the tangle for a given address
-          # rate: rate(30 minutes)
-          rate: rate(1 minute)
+          rate: rate(30 minutes)
           enabled: true
+
+resources:
+  Resources:
+    ExistingTxs:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${env:S3_BUCKET_NAME}
+
+    TxNotification:
+      Type: "AWS::SNS::TOPIC"
+      Properties:
+        TopicName: ${env:SNS_TOPIC_NAME}
+
 

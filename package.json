@@ -4,13 +4,14 @@
   "description": "",
   "main": "handler.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "source .env && node local.js",
     "deploy": "source .env && serverless deploy"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.248.1",
     "iota.lib.js": "^0.4.7"
   }
 }
