@@ -1,0 +1,21 @@
+service: TangleTrigger
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: dev
+  region: ap-southeast-2
+  environment:
+    IOTA_URL: ${env:IOTA_URL}
+    IOTA_ADDRESS: ${env:IOTA_ADDRESS}
+
+functions:
+  checkAddress:
+    handler: handler.checkAddress
+    events:
+      - schedule:
+          name: shedule-check-address
+          description: check the tangle for a given address
+          # rate: rate(30 minutes)
+          rate: rate(1 minutes)
+          enabled: true
+
